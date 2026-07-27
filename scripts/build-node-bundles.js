@@ -17,6 +17,11 @@ const nodesDir = join(root, 'workflows', 'code-nodes');
 const NODES = {
   validate: ['dates.js', 'expandTemplates.js', 'validate.js'],
   expandTemplates: ['dates.js', 'expandTemplates.js'],
+  notify: ['notify.js'],
+  completeParse: ['notify.js'],
+  completeResolve: ['notify.js'],
+  completeCheck: ['notify.js'],
+  completeRender: ['notify.js'],
 };
 
 /** Strip ESM `import`/`export` so the module body runs as a plain script. */

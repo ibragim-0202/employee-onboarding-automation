@@ -8,6 +8,8 @@
     "test": "node --test",
     "demo": "node scripts/demo.js",
     "build:nodes": "node scripts/build-node-bundles.js",
-    "build:intake": "node scripts/build-workflow-intake.js"
+    "build:intake": "node scripts/build-workflow-intake.js",
+    "build:notify": "node scripts/build-workflow-notify.js",
+    "build:complete": "node scripts/build-workflow-complete.js"
   }
 }

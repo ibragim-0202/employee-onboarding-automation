@@ -87,6 +87,14 @@ assignee.
 After updating the task, check the employee's remaining tasks: if none are still `Pending`
 (all are `Done` or `Skipped`), set the employee `Status` = `Complete`.
 
+**Known limitation — callback race.** There is a small window between reading the task and
+writing it: two very fast taps can both read `Pending` and both apply. Airtable has no conditional
+write / compare-and-set, so this is not fully preventable. It is a **deliberate, documented
+limitation, not an oversight** — and it is harmless: the final state is the same `Done`/`Skipped`
+either way, `Completed_By` is the same authorised assignee, only `Completed_At` differs by
+milliseconds, and re-marking `Complete` is idempotent. Once the first tap commits, the second
+callback resolves to *already marked* (see below) and does not rewrite `Completed_At`.
+
 ### F5 — Escalation
 **Trigger:** scheduled, daily at 18:00 (office timezone, see Non-functional).
 Tasks with `Status` = `Pending` and `Due_Date` < today and `Escalated_On` != today → increment

@@ -70,19 +70,25 @@ Generated. Nobody edits this by hand.
 | `Title` | Single line text | Snapshot at creation |
 | `Description` | Long text | Snapshot |
 | `Assignee_Role` | Single select | Snapshot |
+| `Blocking` | Checkbox | Snapshot of the template's `Blocking` at creation — flagged in the notification. Snapshotted, not read live: a task that was blocking for this hire stays blocking even if the template changes later |
 | `Assignee_Telegram_ID` | Single line text | Resolved at creation; empty when the role could not be resolved |
 | `Unresolved_Assignee` | Checkbox | True when no active assignee was found for the role (or manager missing). Task is still created; F2 sends HR one summary. Fix the assignee config, then re-run F2 |
 | `Due_Date` | Date | Working-day adjusted |
 | `Status` | Single select | `Pending`, `Done`, `Skipped` (`Skipped` set via the "Not applicable" button) |
 | `Notified_At` | Date/time | Prevents duplicate notifications |
+| `Telegram_Message_ID` | Single line text | Set by F3. Id of the grouped message this task appears in; also the grouping key F4 uses to re-render the whole message on a button tap |
+| `Telegram_Chat_ID` | Single line text | Set by F3. Chat the message was sent to, needed to edit it |
 | `Completed_At` | Date/time | |
 | `Completed_By` | Single line text | Telegram username |
 | `Escalation_Count` | Number | |
 | `Escalated_On` | Date | Last day this task was escalated. Escalate only if `Escalated_On` != today — prevents double escalation on a re-run |
 
-**Why snapshot the title/description instead of relying on the link:** changing a template later
-must not rewrite the history of onboardings that already happened. Say this in the README — it
-is the kind of detail that separates someone who has modelled data from someone who has not.
+**Why snapshot the template fields (title, description, assignee role, blocking) instead of
+relying on the link:** changing a template later must not rewrite the history of onboardings that
+already happened — including whether a task was blocking for that hire. Live facts that are not
+template history (the employee's name and start date) are read from `Employees` when needed, not
+snapshotted. Say this in the README — it is the kind of detail that separates someone who has
+modelled data from someone who has not.
 
 ## Relationships
 

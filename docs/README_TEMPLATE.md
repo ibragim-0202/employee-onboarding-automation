@@ -49,8 +49,17 @@ Two decisions worth calling out:
 asking an engineer to edit a workflow. That is the difference between an automation that survives
 and one that gets abandoned.
 
-**Generated tasks snapshot their title and description.** Editing a template later must not
-rewrite the history of onboardings that already happened.
+**Generated tasks snapshot their template fields** — title, description, assignee role and the
+`Blocking` flag. Editing a template later must not rewrite the history of onboardings that already
+happened; a task that was blocking for that hire stays blocking, even if the template changes. Live
+facts (the employee's name, start date) are *not* snapshotted — they are read from `Employees` when
+needed, because they are not template history.
+
+**No separate `Notifications` table.** The Telegram message id and chat id live on
+`Onboarding_Tasks` instead. A message is a one-to-many over tasks, so the foreign key belongs on
+the task (the "many") side; the message id doubles as the grouping key for re-rendering a message
+when a button is tapped. A dedicated table would only earn its place if a notification had
+attributes of its own — it doesn't.
 
 ## Engineering notes
 
