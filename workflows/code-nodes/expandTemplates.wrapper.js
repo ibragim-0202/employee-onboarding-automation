@@ -25,6 +25,7 @@ const templates = $('Fetch Active Templates').all().map((i) => ({
   applies_to_all: i.json.Applies_To_All === true,
   assignee_role: i.json.Assignee_Role,
   day_offset: Number(i.json.Day_Offset),
+  blocking: i.json.Blocking === true,
   active: i.json.Active === true,
 }));
 
