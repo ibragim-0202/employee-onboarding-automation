@@ -31,6 +31,14 @@ for (const it of $('Validate').all()) {
 }
 return out;`;
 
+// Narrow filter for "Fetch Existing Tasks": only the employees in THIS batch, never a
+// full-table scan. Task_Key starts with the employee record id, so FIND('<id>::', ...)
+// selects exactly that employee's existing tasks. Falls back to FALSE() (matches nothing)
+// when there is nothing to expand.
+const EXISTING_TASKS_FILTER =
+  "={{ (() => { const ids = [...new Set($('Expand Templates').all().map(t => t.json.Employee))]; " +
+  "return ids.length ? 'OR(' + ids.map(id => \"FIND('\" + id + \"::', {Task_Key}) > 0\").join(', ') + ')' : 'FALSE()'; })() }}";
+
 const HR_SUMMARY = `// One HR summary from the tasks we just created that have no assignee.
 const created = $('Dedupe by Task_Key').all();
 const unresolved = created.filter((t) => t.json.Unresolved_Assignee === true);
@@ -107,7 +115,7 @@ const nodes = [
 
   // valid branch
   codeNode('Expand Templates', built('expandTemplates'), [1140, 160]),
-  airtableSearch('Fetch Existing Tasks', 'Onboarding_Tasks', '', [1360, 160]),
+  airtableSearch('Fetch Existing Tasks', 'Onboarding_Tasks', EXISTING_TASKS_FILTER, [1360, 160]),
   codeNode('Dedupe by Task_Key', DEDUPE, [1580, 160]),
   { parameters: {
       resource: 'record', operation: 'create', base: BASE, table: table('Onboarding_Tasks'),

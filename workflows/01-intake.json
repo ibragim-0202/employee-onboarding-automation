@@ -257,7 +257,7 @@
           "mode": "name",
           "value": "Onboarding_Tasks"
         },
-        "filterByFormula": "",
+        "filterByFormula": "={{ (() => { const ids = [...new Set($('Expand Templates').all().map(t => t.json.Employee))]; return ids.length ? 'OR(' + ids.map(id => \"FIND('\" + id + \"::', {Task_Key}) > 0\").join(', ') + ')' : 'FALSE()'; })() }}",
         "options": {}
       },
       "id": "Fetch Existing Tasks",
