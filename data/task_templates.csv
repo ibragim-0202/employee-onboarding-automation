@@ -1,0 +1,22 @@
+Title,Description,Role,Applies_To_All,Assignee_Role,Day_Offset,Category,Blocking,Active
+Sign employment contract,"Contract signed and filed",,true,HR,-3,Paperwork,true,true
+Collect bank and tax details,"Required before first payroll run",,true,Finance,-3,Paperwork,true,true
+Create work email account,"Provision mailbox and add to company directory",,true,IT,-2,Access,true,true
+Add to messaging workspace,"Invite to Telegram/Slack workspace and relevant groups",,true,IT,-1,Access,true,true
+Prepare welcome pack,"Handbook, schedule for week one, office access card",,true,HR,-1,Paperwork,false,true
+Day-one welcome and office tour,"Meet the team, tour, explain daily routine",,true,Manager,0,Social,false,true
+Assign onboarding buddy,"Pair with an experienced colleague for the first two weeks",,true,Manager,0,Social,false,true
+Week-one check-in,"30-minute conversation: blockers, clarity of expectations",,true,Manager,5,Training,false,true
+Issue laptop and peripherals,"Imaged laptop, monitor, dock, headset",Backend Engineer,false,IT,-2,Equipment,true,true
+Grant repository access,"Git org, required repos, correct team permissions",Backend Engineer,false,IT,-1,Access,true,true
+Grant cloud and database access,"Least-privilege roles in cloud console and staging DB",Backend Engineer,false,IT,0,Access,false,true
+Set up local development environment,"Clone, build and run the service locally",Backend Engineer,false,Manager,1,Training,false,true
+Complete security and data-handling training,"Mandatory before production access",Backend Engineer,false,HR,3,Training,true,true
+First code review walkthrough,"Walk through the review process on a real pull request",Backend Engineer,false,Manager,5,Training,false,true
+Issue uniform and safety equipment,"Uniform, gloves, safety shoes, sized and recorded",Service Technician,false,HR,-2,Equipment,true,true
+Assign tool kit and locker,"Signed tool inventory and locker number",Service Technician,false,Manager,0,Equipment,true,true
+Workshop safety briefing,"Site safety rules, emergency procedures, sign-off sheet",Service Technician,false,Manager,0,Training,true,true
+Add to shift schedule,"Enter into the rota and confirm first two weeks",Service Technician,false,Manager,-1,Paperwork,false,true
+Train on job logging procedure,"How completed work is recorded: date, service, amount",Service Technician,false,Manager,1,Training,false,true
+Supervised first shift,"Shadow an experienced technician for a full shift",Service Technician,false,Manager,0,Training,false,true
+Quality standards walkthrough,"Checklist per service type and what rework means",Service Technician,false,Manager,4,Training,false,true
