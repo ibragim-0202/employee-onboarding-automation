@@ -2,3 +2,6 @@
 node_modules/
 *.log
 .DS_Store
+
+# local personal setup guide, not part of the repo
+GITHUB_SETUP.md
