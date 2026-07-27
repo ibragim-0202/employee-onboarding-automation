@@ -61,9 +61,12 @@ message per task.
 
 Task expansion must be **idempotent**: re-running it for the same employee must not create
 duplicates (dedupe on `Task_Key`). Dedupe is create-only — a re-run creates nothing new and does
-not rewrite existing tasks. To fix an unresolved assignee, HR either corrects the assignee config
-before the first run, or edits `Assignee_Telegram_ID` directly on the task in Airtable (the system
-of record). (Auto-healing unresolved tasks on re-run is deliberately out of scope for now.)
+**not** rewrite or heal existing tasks. In particular, a re-run does not fix an
+`Unresolved_Assignee` task even after the assignee config is corrected. **This is a deliberate
+limitation, not an oversight:** create-only keeps the workflow simple and its history stable. To
+fix an unresolved assignee, HR either corrects the assignee config *before* the first run, or edits
+`Assignee_Telegram_ID` directly on the task in Airtable (the system of record). Auto-healing on
+re-run is intentionally out of scope.
 
 ### F3 — Notification
 **Trigger:** scheduled, daily at 09:00 (office timezone, see Non-functional).
