@@ -18,7 +18,9 @@ hardcoded logic, so HR can change the onboarding process without touching a work
 | `Status` | Single select | `New`, `Onboarding`, `Complete`, `Error` |
 | `Validation_Notes` | Long text | Filled only on `Error` |
 | `Tasks` | Link → `Onboarding_Tasks` | Reverse link |
-| `Completion_Pct` | Rollup | Done tasks / all tasks |
+| `Completion_Pct` | Rollup | `AVERAGE` of `Tasks.Resolved` = (Done + Skipped) / all. 100% coincides with `Status` = `Complete` (see note below) |
+| `Last_Completed_At` | Rollup | `MAX` of `Tasks.Completed_At` — when the onboarding's last task closed |
+| `Complete_By_Day7` | Formula | `1` if `Status` = `Complete` AND `DATETIME_DIFF(Last_Completed_At, Start_Date, 'days') <= 7`, else `0`. Day 7 = `Start_Date` + 7 calendar days |
 | `Created_At` | Created time | |
 
 ## 2. `Roles`
@@ -71,6 +73,7 @@ Generated. Nobody edits this by hand.
 | `Description` | Long text | Snapshot |
 | `Assignee_Role` | Single select | Snapshot |
 | `Blocking` | Checkbox | Snapshot of the template's `Blocking` at creation — flagged in the notification. Snapshotted, not read live: a task that was blocking for this hire stays blocking even if the template changes later |
+| `Category` | Single select | Snapshot of the template's `Category` (`Paperwork` / `Equipment` / `Access` / `Training` / `Social`) — used to group the dashboard "average completion time by task type" |
 | `Assignee_Telegram_ID` | Single line text | Resolved at creation; empty when the role could not be resolved |
 | `Unresolved_Assignee` | Checkbox | True when no active assignee was found for the role (or manager missing). Task is still created; F2 sends HR one summary. Fix the assignee config, then re-run F2 |
 | `Due_Date` | Date | Working-day adjusted |
@@ -82,9 +85,17 @@ Generated. Nobody edits this by hand.
 | `Completed_By` | Single line text | Telegram username |
 | `Escalation_Count` | Number | |
 | `Escalated_On` | Date | Last day this task was escalated. Escalate only if `Escalated_On` != today — prevents double escalation on a re-run |
+| `Created_At` | Created time | When the task was generated; base of the completion-time metric |
+| `Resolved` | Formula | `IF(OR({Status}='Done', {Status}='Skipped'), 1, 0)` — 1 when the task is no longer outstanding. Averaged into `Employees.Completion_Pct` |
+| `Completion_Days` | Formula | `IF({Completed_At}, DATETIME_DIFF({Completed_At}, {Created_At}, 'days'), BLANK())` — days from creation to completion; averaged per `Category` on the dashboard |
 
-**Why snapshot the template fields (title, description, assignee role, blocking) instead of
-relying on the link:** changing a template later must not rewrite the history of onboardings that
+**Completion_Pct counts resolved, not just Done.** `Resolved` = `Done` OR `Skipped`, so
+`Completion_Pct` = resolved / all. This makes 100% coincide with `Status` = `Complete` (which is
+set when no task is `Pending`). SPEC originally read "Done / all", which contradicted the `Complete`
+rule; resolved / all is the deliberate reconciliation.
+
+**Why snapshot the template fields (title, description, assignee role, blocking, category) instead
+of relying on the link:** changing a template later must not rewrite the history of onboardings that
 already happened — including whether a task was blocking for that hire. Live facts that are not
 template history (the employee's name and start date) are read from `Employees` when needed, not
 snapshotted. Say this in the README — it is the kind of detail that separates someone who has

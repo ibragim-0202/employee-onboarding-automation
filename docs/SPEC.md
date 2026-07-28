@@ -102,11 +102,20 @@ Tasks with `Status` = `Pending` and `Due_Date` < today and `Escalated_On` != tod
 The `Escalated_On` check guarantees at most once per task per day even if the workflow is re-run.
 
 ### F6 — Dashboard
-Airtable Interface, three views:
-- **This week** — employees starting in the next 7 days, with a completion percentage per person
-- **Blocked** — overdue tasks grouped by assignee
-- **Metrics** — average completion time per task type; percentage of onboardings fully complete
-  by day 7
+Airtable Interface, three views (build steps in `docs/DASHBOARD.md`):
+- **This week** — employees whose `Start_Date` is within the next 7 days, with `Completion_Pct`
+  per person. `Completion_Pct` = resolved / all = (`Done` + `Skipped`) / all tasks, so 100%
+  coincides with `Status` = `Complete`. (SPEC originally said "Done / all"; that contradicted the
+  `Complete` rule, so resolved / all is the deliberate reconciliation.)
+- **Blocked** — overdue tasks (`Status` = `Pending`, `Due_Date` < today) grouped by assignee
+- **Metrics** —
+  - *Average completion time by task type*: mean of `Completion_Days`
+    (`Completed_At` − `Created_At`) grouped by the task's snapshotted `Category`.
+  - *Percentage of onboardings complete by day 7*: share of employees where `Status` = `Complete`
+    and the last task closed within **day 7 = `Start_Date` + 7 calendar days**
+    (`DATETIME_DIFF(Last_Completed_At, Start_Date, 'days') <= 7`). Approximate in source — there is
+    no stored timestamp for when an employee *became* `Complete`, so the last task's `Completed_At`
+    stands in; the day-7 boundary itself is exact and reproducible.
 
 ## Non-functional
 
