@@ -172,6 +172,7 @@ function expandTemplates(employee, templates, assignees) {
       Description: template.description,
       Assignee_Role: template.assignee_role,
       Blocking: template.blocking === true, // snapshot, not read live from the template
+      Category: template.category ?? null,  // snapshot too (used for dashboard grouping)
       Assignee_Telegram_ID: telegram_id,
       Due_Date: dueDateFromOffset(employee.start_date, template.day_offset),
       Status: 'Pending',

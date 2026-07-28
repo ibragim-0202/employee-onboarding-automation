@@ -16,7 +16,7 @@ const employee = {
 
 const templates = [
   { id: 'recT1', title: 'Sign contract', description: 'Signed employment contract on file', role: null, applies_to_all: true, assignee_role: 'HR', day_offset: -3, active: true },
-  { id: 'recT2', title: 'Issue laptop', description: 'Laptop imaged and handed over', role: 'Backend Engineer', applies_to_all: false, assignee_role: 'IT', day_offset: -1, active: true, blocking: true },
+  { id: 'recT2', title: 'Issue laptop', description: 'Laptop imaged and handed over', role: 'Backend Engineer', applies_to_all: false, assignee_role: 'IT', day_offset: -1, active: true, blocking: true, category: 'Equipment' },
   { id: 'recT3', title: 'Team intro', description: 'Introduce to the team', role: 'Backend Engineer', applies_to_all: false, assignee_role: 'Manager', day_offset: 1, active: true },
   { id: 'recT4', title: 'Payroll setup', description: 'Add to payroll', role: 'Backend Engineer', applies_to_all: false, assignee_role: 'Finance', day_offset: 2, active: true },
   { id: 'recT5', title: 'Truck check', description: 'Assign service truck', role: 'Service Technician', applies_to_all: false, assignee_role: 'IT', day_offset: 0, active: true },
@@ -62,6 +62,13 @@ test('snapshots the template Blocking flag (defaults false when absent)', () => 
   const t = byKey(tasks);
   assert.equal(t['recEMP001::recT2'].Blocking, true);  // template has blocking: true
   assert.equal(t['recEMP001::recT1'].Blocking, false); // template has no blocking field -> false
+});
+
+test('snapshots the template Category (null when absent)', () => {
+  const { tasks } = expandTemplates(employee, templates, assignees);
+  const t = byKey(tasks);
+  assert.equal(t['recEMP001::recT2'].Category, 'Equipment'); // template has category
+  assert.equal(t['recEMP001::recT1'].Category, null);        // template has no category -> null
 });
 
 test('computes Due_Date via the calendar-offset + weekend rule', () => {
