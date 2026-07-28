@@ -22,6 +22,8 @@ const NODES = {
   completeResolve: ['notify.js'],
   completeCheck: ['notify.js'],
   completeRender: ['notify.js'],
+  escalate: ['dates.js', 'escalate.js'],
+  escalateSummary: ['dates.js', 'escalate.js'],
 };
 
 /** Strip ESM `import`/`export` so the module body runs as a plain script. */
@@ -34,10 +36,30 @@ function toPlainScript(source) {
     .trim();
 }
 
+/** Top-level const/let/var/function/class names, to catch collisions when files are concatenated. */
+function topLevelNames(plainSrc) {
+  const names = [];
+  for (const line of plainSrc.split('\n')) {
+    const m = /^(?:const|let|var|function|class)\s+([A-Za-z_$][\w$]*)/.exec(line);
+    if (m) names.push(m[1]);
+  }
+  return names;
+}
+
 for (const [node, files] of Object.entries(NODES)) {
-  const core = files
-    .map((f) => `// ---- inlined from scripts/${f} ----\n${toPlainScript(readFileSync(join(root, 'scripts', f), 'utf8'))}`)
-    .join('\n\n');
+  const plain = files.map((f) => ({ f, src: toPlainScript(readFileSync(join(root, 'scripts', f), 'utf8')) }));
+
+  // A shared top-level name across inlined files becomes a duplicate declaration in the one
+  // Code node — a syntax error tests never see (modules are isolated). Fail the build instead.
+  const seen = new Map();
+  for (const { f, src } of plain) {
+    for (const name of topLevelNames(src)) {
+      if (seen.has(name)) throw new Error(`Node "${node}": top-level "${name}" declared in both scripts/${seen.get(name)} and scripts/${f} — rename one.`);
+      seen.set(name, f);
+    }
+  }
+
+  const core = plain.map(({ f, src }) => `// ---- inlined from scripts/${f} ----\n${src}`).join('\n\n');
 
   const wrapper = readFileSync(join(nodesDir, `${node}.wrapper.js`), 'utf8');
   if (!wrapper.includes('/* __CORE__ */')) {
