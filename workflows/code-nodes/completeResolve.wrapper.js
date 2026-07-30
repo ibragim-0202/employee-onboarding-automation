@@ -29,9 +29,13 @@ return [{ json: {
   status: r.status || null,
   task_id: f.id,
   employee_id: task.employee_id,
-  completed_by: p.from_username || String(p.from_id),
   telegram_message_id: f.Telegram_Message_ID,
   telegram_chat_id: f.Telegram_Chat_ID,
   callback_query_id: p.callback_query_id,
   answerText,
+  // Column-named fields for the autoMap update on "Update Task" (id = record to update).
+  id: f.id,
+  Status: r.status || null,
+  Completed_At: new Date().toISOString(),
+  Completed_By: p.from_username || String(p.from_id),
 } }];

@@ -72,15 +72,13 @@ const nodes = [
 
   // apply branch
   airtable('Update Task', { resource: 'record', operation: 'update', table: table('Onboarding_Tasks'),
-    columns: { mappingMode: 'defineBelow', value: {
-      id: '={{ $json.task_id }}', Status: '={{ $json.status }}',
-      Completed_At: '={{ $now.toISO() }}', Completed_By: '={{ $json.completed_by }}' } }, options: {} }, [760, 300]),
+    columns: { mappingMode: 'autoMapInputData' }, options: {} }, [760, 300]),
   search('Fetch Employee Tasks', 'Onboarding_Tasks',
     '={{ "FIND(\'" + $(\'Resolve\').first().json.employee_id + "::\', {Task_Key}) > 0" }}', [980, 300]),
   codeNode('Complete Check', built('completeCheck'), [1200, 300]),
   ifTrue('IF Employee Complete', '={{ $json.complete === true }}', [1420, 300]),
   airtable('Mark Employee Complete', { resource: 'record', operation: 'update', table: table('Employees'),
-    columns: { mappingMode: 'defineBelow', value: { id: '={{ $json.employee_id }}', Status: 'Complete' } }, options: {} }, [1640, 200]),
+    columns: { mappingMode: 'autoMapInputData' }, options: {} }, [1640, 200]),
 
   // shared re-render tail (runs after the update has committed)
   search('Fetch Employees', 'Employees', '', [1860, 300]),

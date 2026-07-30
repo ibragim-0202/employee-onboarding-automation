@@ -141,13 +141,7 @@
           "value": "Onboarding_Tasks"
         },
         "columns": {
-          "mappingMode": "defineBelow",
-          "value": {
-            "id": "={{ $json.id }}",
-            "Notified_At": "={{ $json.Notified_At }}",
-            "Telegram_Message_ID": "={{ $json.Telegram_Message_ID }}",
-            "Telegram_Chat_ID": "={{ $json.Telegram_Chat_ID }}"
-          }
+          "mappingMode": "autoMapInputData"
         },
         "options": {}
       },

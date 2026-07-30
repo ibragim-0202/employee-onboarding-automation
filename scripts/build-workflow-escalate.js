@@ -42,9 +42,7 @@ const nodes = [
   // bump path
   { parameters: {
       resource: 'record', operation: 'update', base: BASE, table: table('Onboarding_Tasks'),
-      columns: { mappingMode: 'defineBelow', value: {
-        id: '={{ $json.id }}', Escalation_Count: '={{ $json.Escalation_Count }}', Escalated_On: '={{ $json.Escalated_On }}' } },
-      options: { bulkSize: 10 } },
+      columns: { mappingMode: 'autoMapInputData' }, options: { bulkSize: 10 } },
     id: 'Bump Escalation', name: 'Bump Escalation', type: 'n8n-nodes-base.airtable', typeVersion: 2.1, position: [480, 200],
     notes: 'Attach Airtable credential after import.' },
 

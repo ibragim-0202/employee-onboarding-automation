@@ -107,12 +107,7 @@
           "value": "Onboarding_Tasks"
         },
         "columns": {
-          "mappingMode": "defineBelow",
-          "value": {
-            "id": "={{ $json.id }}",
-            "Escalation_Count": "={{ $json.Escalation_Count }}",
-            "Escalated_On": "={{ $json.Escalated_On }}"
-          }
+          "mappingMode": "autoMapInputData"
         },
         "options": {
           "bulkSize": 10

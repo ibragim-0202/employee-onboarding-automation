@@ -27,7 +27,7 @@ const COLLECT_EMPLOYEES = `// One item per valid employee id, for the status upd
 const seen = new Set();
 const out = [];
 for (const it of $('Validate').all()) {
-  if (it.json._valid && !seen.has(it.json.id)) { seen.add(it.json.id); out.push({ json: { id: it.json.id } }); }
+  if (it.json._valid && !seen.has(it.json.id)) { seen.add(it.json.id); out.push({ json: { id: it.json.id, Status: 'Onboarding' } }); }
 }
 return out;`;
 
@@ -38,6 +38,14 @@ return out;`;
 const EXISTING_TASKS_FILTER =
   "={{ (() => { const ids = [...new Set($('Expand Templates').all().map(t => Array.isArray(t.json.Employee) ? t.json.Employee[0] : t.json.Employee))]; " +
   "return ids.length ? 'OR(' + ids.map(id => \"FIND('\" + id + \"::', {Task_Key}) > 0\").join(', ') + ')' : 'FALSE()'; })() }}";
+
+// Shape the invalid employee into exactly the columns Mark Error writes (autoMap needs
+// input keys that match Airtable column names + `id` as the record to update).
+const BUILD_ERROR = `return items.map((i) => ({ json: {
+  id: i.json.id,
+  Status: 'Error',
+  Validation_Notes: (i.json._errors || []).map((e) => e.field + ': ' + e.message).join('; '),
+} }));`;
 
 const HR_SUMMARY = `// One HR summary from the tasks we just created that have no assignee.
 const created = $('Dedupe by Task_Key').all();
@@ -102,16 +110,15 @@ const nodes = [
     id: 'IF Valid', name: 'IF Valid', type: 'n8n-nodes-base.if', typeVersion: 2, position: [920, 300] },
 
   // invalid branch
+  codeNode('Build Error Update', BUILD_ERROR, [1140, 460]),
   { parameters: {
       resource: 'record', operation: 'update', base: BASE, table: table('Employees'),
-      columns: { mappingMode: 'defineBelow', value: {
-        id: '={{ $json.id }}', Status: 'Error',
-        Validation_Notes: "={{ $json._errors.map(e => e.field + ': ' + e.message).join('; ') }}" } }, options: {} },
-    id: 'Mark Error', name: 'Mark Error', type: 'n8n-nodes-base.airtable', typeVersion: 2.1, position: [1140, 460],
+      columns: { mappingMode: 'autoMapInputData' }, options: {} },
+    id: 'Mark Error', name: 'Mark Error', type: 'n8n-nodes-base.airtable', typeVersion: 2.1, position: [1360, 460],
     notes: 'Attach Airtable credential after import.' },
   telegram('Notify HR (invalid)',
-    "=Onboarding intake failed for {{ $json.Full_Name }}:\n{{ $json._errors.map(e => '- ' + e.message).join('\\n') }}",
-    [1360, 460]),
+    '=Onboarding intake failed for {{ $json.Full_Name }}:\n{{ $json.Validation_Notes }}',
+    [1580, 460]),
 
   // valid branch
   codeNode('Expand Templates', built('expandTemplates'), [1140, 160]),
@@ -128,7 +135,7 @@ const nodes = [
   codeNode('Collect Valid Employees', COLLECT_EMPLOYEES, [2020, 60]),
   { parameters: {
       resource: 'record', operation: 'update', base: BASE, table: table('Employees'),
-      columns: { mappingMode: 'defineBelow', value: { id: '={{ $json.id }}', Status: 'Onboarding' } }, options: {} },
+      columns: { mappingMode: 'autoMapInputData' }, options: {} },
     id: 'Mark Onboarding', name: 'Mark Onboarding', type: 'n8n-nodes-base.airtable', typeVersion: 2.1, position: [2240, 60],
     notes: 'Attach Airtable credential after import.' },
 
@@ -151,9 +158,10 @@ const connections = {
   ...chain('Fetch New Employees', 'Validate'),
   ...chain('Validate', 'IF Valid'),
   'IF Valid': { main: [
-    [{ node: 'Expand Templates', type: 'main', index: 0 }],  // true
-    [{ node: 'Mark Error', type: 'main', index: 0 }],        // false
+    [{ node: 'Expand Templates', type: 'main', index: 0 }],     // true
+    [{ node: 'Build Error Update', type: 'main', index: 0 }],   // false
   ] },
+  ...chain('Build Error Update', 'Mark Error'),
   ...chain('Mark Error', 'Notify HR (invalid)'),
   ...chain('Expand Templates', 'Fetch Existing Tasks'),
   ...chain('Fetch Existing Tasks', 'Dedupe by Task_Key'),

@@ -89,9 +89,7 @@ const nodes = [
   codeNode('Notified Updates', NOTIFIED_UPDATES, [700, 200]),
   { parameters: {
       resource: 'record', operation: 'update', base: BASE, table: table('Onboarding_Tasks'),
-      columns: { mappingMode: 'defineBelow', value: {
-        id: '={{ $json.id }}', Notified_At: '={{ $json.Notified_At }}',
-        Telegram_Message_ID: '={{ $json.Telegram_Message_ID }}', Telegram_Chat_ID: '={{ $json.Telegram_Chat_ID }}' } }, options: {} },
+      columns: { mappingMode: 'autoMapInputData' }, options: {} },
     id: 'Mark Notified', name: 'Mark Notified', type: 'n8n-nodes-base.airtable', typeVersion: 2.1, position: [920, 200],
     notes: 'Attach Airtable credential after import.' },
 

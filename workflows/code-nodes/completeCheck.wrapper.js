@@ -9,5 +9,7 @@
 const tasks = items.map((i) => ({ status: i.json.Status }));
 return [{ json: {
   complete: isEmployeeComplete(tasks),
-  employee_id: $('Resolve').first().json.employee_id,
+  // Column-named fields for the autoMap update on "Mark Employee Complete".
+  id: $('Resolve').first().json.employee_id,
+  Status: 'Complete',
 } }];

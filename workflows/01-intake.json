@@ -179,6 +179,20 @@
     },
     {
       "parameters": {
+        "language": "javaScript",
+        "jsCode": "return items.map((i) => ({ json: {\n  id: i.json.id,\n  Status: 'Error',\n  Validation_Notes: (i.json._errors || []).map((e) => e.field + ': ' + e.message).join('; '),\n} }));"
+      },
+      "id": "Build Error Update",
+      "name": "Build Error Update",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1140,
+        460
+      ]
+    },
+    {
+      "parameters": {
         "resource": "record",
         "operation": "update",
         "base": {
@@ -192,12 +206,7 @@
           "value": "Employees"
         },
         "columns": {
-          "mappingMode": "defineBelow",
-          "value": {
-            "id": "={{ $json.id }}",
-            "Status": "Error",
-            "Validation_Notes": "={{ $json._errors.map(e => e.field + ': ' + e.message).join('; ') }}"
-          }
+          "mappingMode": "autoMapInputData"
         },
         "options": {}
       },
@@ -206,7 +215,7 @@
       "type": "n8n-nodes-base.airtable",
       "typeVersion": 2.1,
       "position": [
-        1140,
+        1360,
         460
       ],
       "notes": "Attach Airtable credential after import."
@@ -216,7 +225,7 @@
         "resource": "message",
         "operation": "sendMessage",
         "chatId": "={{ $env.TELEGRAM_HR_CHAT_ID }}",
-        "text": "=Onboarding intake failed for {{ $json.Full_Name }}:\n{{ $json._errors.map(e => '- ' + e.message).join('\\n') }}",
+        "text": "=Onboarding intake failed for {{ $json.Full_Name }}:\n{{ $json.Validation_Notes }}",
         "additionalFields": {}
       },
       "id": "Notify HR (invalid)",
@@ -224,7 +233,7 @@
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
       "position": [
-        1360,
+        1580,
         460
       ],
       "notes": "Attach Telegram Bot API credential after import."
@@ -320,7 +329,7 @@
     {
       "parameters": {
         "language": "javaScript",
-        "jsCode": "// One item per valid employee id, for the status update.\nconst seen = new Set();\nconst out = [];\nfor (const it of $('Validate').all()) {\n  if (it.json._valid && !seen.has(it.json.id)) { seen.add(it.json.id); out.push({ json: { id: it.json.id } }); }\n}\nreturn out;"
+        "jsCode": "// One item per valid employee id, for the status update.\nconst seen = new Set();\nconst out = [];\nfor (const it of $('Validate').all()) {\n  if (it.json._valid && !seen.has(it.json.id)) { seen.add(it.json.id); out.push({ json: { id: it.json.id, Status: 'Onboarding' } }); }\n}\nreturn out;"
       },
       "id": "Collect Valid Employees",
       "name": "Collect Valid Employees",
@@ -346,11 +355,7 @@
           "value": "Employees"
         },
         "columns": {
-          "mappingMode": "defineBelow",
-          "value": {
-            "id": "={{ $json.id }}",
-            "Status": "Onboarding"
-          }
+          "mappingMode": "autoMapInputData"
         },
         "options": {}
       },
@@ -503,6 +508,17 @@
             "index": 0
           }
         ],
+        [
+          {
+            "node": "Build Error Update",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Error Update": {
+      "main": [
         [
           {
             "node": "Mark Error",
