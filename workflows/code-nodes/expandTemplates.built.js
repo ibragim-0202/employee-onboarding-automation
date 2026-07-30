@@ -215,6 +215,7 @@ for (const item of items) {
     manager_telegram_id: f.Manager_Telegram_ID,
   };
   const { tasks } = expandTemplates(employee, templates, assignees);
-  for (const task of tasks) out.push({ json: task });
+  // Airtable link fields need arrays of record ids, not bare strings.
+  for (const task of tasks) out.push({ json: { ...task, Employee: [task.Employee], Template: [task.Template] } });
 }
 return out;
