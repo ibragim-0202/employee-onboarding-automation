@@ -94,34 +94,24 @@
     },
     {
       "parameters": {
-        "resource": "record",
-        "operation": "update",
-        "base": {
-          "__rl": true,
-          "mode": "id",
-          "value": "={{ $env.AIRTABLE_BASE_ID }}"
-        },
-        "table": {
-          "__rl": true,
-          "mode": "name",
-          "value": "Onboarding_Tasks"
-        },
-        "columns": {
-          "mappingMode": "autoMapInputData"
-        },
-        "options": {
-          "bulkSize": 10
-        }
+        "method": "PATCH",
+        "url": "=https://api.airtable.com/v0/{{ $env.AIRTABLE_BASE_ID }}/Onboarding_Tasks/{{ $json.id }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "airtableTokenApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ fields: { Escalation_Count: $json.Escalation_Count, Escalated_On: $json.Escalated_On } }) }}",
+        "options": {}
       },
       "id": "Bump Escalation",
       "name": "Bump Escalation",
-      "type": "n8n-nodes-base.airtable",
-      "typeVersion": 2.1,
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
       "position": [
         480,
         200
       ],
-      "notes": "Attach Airtable credential after import."
+      "notes": "Airtable update via HTTP PATCH; attach the Airtable PAT credential (Predefined Credential Type)."
     },
     {
       "parameters": {

@@ -37,6 +37,16 @@ const telegramPost = (name, method, jsonBody, pos) => ({
   parameters: { method: 'POST', url: `=https://api.telegram.org/bot{{ $env.TELEGRAM_BOT_TOKEN }}/${method}`, sendBody: true, specifyBody: 'json', jsonBody, options: {} },
   id: name, name, type: 'n8n-nodes-base.httpRequest', typeVersion: 4.2, position: pos,
 });
+// Airtable update via HTTP PATCH (schema-independent), authenticated by the Airtable PAT credential.
+const airtablePatch = (name, tableName, idExpr, fieldsBody, pos) => ({
+  parameters: {
+    method: 'PATCH', url: `=https://api.airtable.com/v0/{{ $env.AIRTABLE_BASE_ID }}/${tableName}/${idExpr}`,
+    authentication: 'predefinedCredentialType', nodeCredentialType: 'airtableTokenApi',
+    sendBody: true, specifyBody: 'json', jsonBody: fieldsBody, options: {},
+  },
+  id: name, name, type: 'n8n-nodes-base.httpRequest', typeVersion: 4.2, position: pos,
+  notes: 'Airtable update via HTTP PATCH; attach the Airtable PAT credential (Predefined Credential Type).',
+});
 const ifTrue = (name, expr, pos) => ({
   parameters: { conditions: { options: { caseSensitive: true, typeValidation: 'strict' }, combinator: 'and',
     conditions: [{ leftValue: expr, rightValue: true, operator: { type: 'boolean', operation: 'true', singleValue: true } }] } },
@@ -71,14 +81,14 @@ const nodes = [
     '={{ JSON.stringify({ callback_query_id: $json.callback_query_id, text: $json.answerText, show_alert: true }) }}', [760, 120]),
 
   // apply branch
-  airtable('Update Task', { resource: 'record', operation: 'update', table: table('Onboarding_Tasks'),
-    columns: { mappingMode: 'autoMapInputData' }, options: {} }, [760, 300]),
+  airtablePatch('Update Task', 'Onboarding_Tasks', '{{ $json.task_id }}',
+    '={{ JSON.stringify({ fields: { Status: $json.status, Completed_At: $json.Completed_At, Completed_By: $json.Completed_By } }) }}', [760, 300]),
   search('Fetch Employee Tasks', 'Onboarding_Tasks',
     '={{ "FIND(\'" + $(\'Resolve\').first().json.employee_id + "::\', {Task_Key}) > 0" }}', [980, 300]),
   codeNode('Complete Check', built('completeCheck'), [1200, 300]),
   ifTrue('IF Employee Complete', '={{ $json.complete === true }}', [1420, 300]),
-  airtable('Mark Employee Complete', { resource: 'record', operation: 'update', table: table('Employees'),
-    columns: { mappingMode: 'autoMapInputData' }, options: {} }, [1640, 200]),
+  airtablePatch('Mark Employee Complete', 'Employees', '{{ $json.id }}',
+    "={{ JSON.stringify({ fields: { Status: 'Complete' } }) }}", [1640, 200]),
 
   // shared re-render tail (runs after the update has committed)
   search('Fetch Employees', 'Employees', '', [1860, 300]),

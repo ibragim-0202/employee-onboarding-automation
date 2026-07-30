@@ -193,39 +193,31 @@
     },
     {
       "parameters": {
-        "resource": "record",
-        "operation": "update",
-        "base": {
-          "__rl": true,
-          "mode": "id",
-          "value": "={{ $env.AIRTABLE_BASE_ID }}"
-        },
-        "table": {
-          "__rl": true,
-          "mode": "name",
-          "value": "Employees"
-        },
-        "columns": {
-          "mappingMode": "autoMapInputData"
-        },
+        "method": "PATCH",
+        "url": "=https://api.airtable.com/v0/{{ $env.AIRTABLE_BASE_ID }}/Employees/{{ $json.id }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "airtableTokenApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ fields: { Status: 'Error', Validation_Notes: $json.Validation_Notes } }) }}",
         "options": {}
       },
       "id": "Mark Error",
       "name": "Mark Error",
-      "type": "n8n-nodes-base.airtable",
-      "typeVersion": 2.1,
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
       "position": [
         1360,
         460
       ],
-      "notes": "Attach Airtable credential after import."
+      "notes": "Airtable update via HTTP PATCH; attach the Airtable PAT credential (Predefined Credential Type -> Airtable API)."
     },
     {
       "parameters": {
         "resource": "message",
         "operation": "sendMessage",
         "chatId": "={{ $env.TELEGRAM_HR_CHAT_ID }}",
-        "text": "=Onboarding intake failed for {{ $json.Full_Name }}:\n{{ $json.Validation_Notes }}",
+        "text": "=Onboarding intake failed for {{ $json.fields.Full_Name }}:\n{{ $json.fields.Validation_Notes }}",
         "additionalFields": {}
       },
       "id": "Notify HR (invalid)",
@@ -342,32 +334,24 @@
     },
     {
       "parameters": {
-        "resource": "record",
-        "operation": "update",
-        "base": {
-          "__rl": true,
-          "mode": "id",
-          "value": "={{ $env.AIRTABLE_BASE_ID }}"
-        },
-        "table": {
-          "__rl": true,
-          "mode": "name",
-          "value": "Employees"
-        },
-        "columns": {
-          "mappingMode": "autoMapInputData"
-        },
+        "method": "PATCH",
+        "url": "=https://api.airtable.com/v0/{{ $env.AIRTABLE_BASE_ID }}/Employees/{{ $json.id }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "airtableTokenApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ fields: { Status: 'Onboarding' } }) }}",
         "options": {}
       },
       "id": "Mark Onboarding",
       "name": "Mark Onboarding",
-      "type": "n8n-nodes-base.airtable",
-      "typeVersion": 2.1,
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
       "position": [
         2240,
         60
       ],
-      "notes": "Attach Airtable credential after import."
+      "notes": "Airtable update via HTTP PATCH; attach the Airtable PAT credential (Predefined Credential Type -> Airtable API)."
     },
     {
       "parameters": {

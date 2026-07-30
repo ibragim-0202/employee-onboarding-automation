@@ -28,6 +28,16 @@ function airtableSearch(name, tableName, formula, pos) {
 const codeNode = (name, jsCode, pos) => ({
   parameters: { language: 'javaScript', jsCode }, id: name, name, type: 'n8n-nodes-base.code', typeVersion: 2, position: pos,
 });
+// Airtable update via HTTP PATCH (schema-independent), authenticated by the Airtable PAT credential.
+const airtablePatch = (name, tableName, idExpr, fieldsBody, pos) => ({
+  parameters: {
+    method: 'PATCH', url: `=https://api.airtable.com/v0/{{ $env.AIRTABLE_BASE_ID }}/${tableName}/${idExpr}`,
+    authentication: 'predefinedCredentialType', nodeCredentialType: 'airtableTokenApi',
+    sendBody: true, specifyBody: 'json', jsonBody: fieldsBody, options: {},
+  },
+  id: name, name, type: 'n8n-nodes-base.httpRequest', typeVersion: 4.2, position: pos,
+  notes: 'Airtable update via HTTP PATCH; attach the Airtable PAT credential (Predefined Credential Type).',
+});
 
 const nodes = [
   { parameters: { rule: { interval: [{ field: 'cronExpression', expression: '0 18 * * *' }] } },
@@ -40,11 +50,8 @@ const nodes = [
   codeNode('Select Overdue', built('escalate'), [260, 300]),
 
   // bump path
-  { parameters: {
-      resource: 'record', operation: 'update', base: BASE, table: table('Onboarding_Tasks'),
-      columns: { mappingMode: 'autoMapInputData' }, options: { bulkSize: 10 } },
-    id: 'Bump Escalation', name: 'Bump Escalation', type: 'n8n-nodes-base.airtable', typeVersion: 2.1, position: [480, 200],
-    notes: 'Attach Airtable credential after import.' },
+  airtablePatch('Bump Escalation', 'Onboarding_Tasks', '{{ $json.id }}',
+    '={{ JSON.stringify({ fields: { Escalation_Count: $json.Escalation_Count, Escalated_On: $json.Escalated_On } }) }}', [480, 200]),
 
   // summary path
   codeNode('HR Summary', built('escalateSummary'), [480, 420]),

@@ -90,6 +90,20 @@ function telegram(name, textExpr, pos) {
     notes: 'Attach Telegram Bot API credential after import.',
   };
 }
+// Airtable record update via HTTP PATCH — schema-independent, unlike the Airtable update node.
+// Uses the Airtable PAT credential (Predefined Credential Type). idExpr goes in the URL path.
+function airtablePatch(name, tableName, idExpr, fieldsBody, pos) {
+  return {
+    parameters: {
+      method: 'PATCH',
+      url: `=https://api.airtable.com/v0/{{ $env.AIRTABLE_BASE_ID }}/${tableName}/${idExpr}`,
+      authentication: 'predefinedCredentialType', nodeCredentialType: 'airtableTokenApi',
+      sendBody: true, specifyBody: 'json', jsonBody: fieldsBody, options: {},
+    },
+    id: name, name, type: 'n8n-nodes-base.httpRequest', typeVersion: 4.2, position: pos,
+    notes: 'Airtable update via HTTP PATCH; attach the Airtable PAT credential (Predefined Credential Type -> Airtable API).',
+  };
+}
 
 // --- nodes ------------------------------------------------------------------
 
@@ -111,13 +125,10 @@ const nodes = [
 
   // invalid branch
   codeNode('Build Error Update', BUILD_ERROR, [1140, 460]),
-  { parameters: {
-      resource: 'record', operation: 'update', base: BASE, table: table('Employees'),
-      columns: { mappingMode: 'autoMapInputData' }, options: {} },
-    id: 'Mark Error', name: 'Mark Error', type: 'n8n-nodes-base.airtable', typeVersion: 2.1, position: [1360, 460],
-    notes: 'Attach Airtable credential after import.' },
+  airtablePatch('Mark Error', 'Employees', '{{ $json.id }}',
+    "={{ JSON.stringify({ fields: { Status: 'Error', Validation_Notes: $json.Validation_Notes } }) }}", [1360, 460]),
   telegram('Notify HR (invalid)',
-    '=Onboarding intake failed for {{ $json.Full_Name }}:\n{{ $json.Validation_Notes }}',
+    '=Onboarding intake failed for {{ $json.fields.Full_Name }}:\n{{ $json.fields.Validation_Notes }}',
     [1580, 460]),
 
   // valid branch
@@ -133,11 +144,8 @@ const nodes = [
 
   // status update + HR summary
   codeNode('Collect Valid Employees', COLLECT_EMPLOYEES, [2020, 60]),
-  { parameters: {
-      resource: 'record', operation: 'update', base: BASE, table: table('Employees'),
-      columns: { mappingMode: 'autoMapInputData' }, options: {} },
-    id: 'Mark Onboarding', name: 'Mark Onboarding', type: 'n8n-nodes-base.airtable', typeVersion: 2.1, position: [2240, 60],
-    notes: 'Attach Airtable credential after import.' },
+  airtablePatch('Mark Onboarding', 'Employees', '{{ $json.id }}',
+    "={{ JSON.stringify({ fields: { Status: 'Onboarding' } }) }}", [2240, 60]),
 
   codeNode('HR Warnings Summary', HR_SUMMARY, [2020, 260]),
   { parameters: {

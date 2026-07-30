@@ -45,6 +45,16 @@ const telegramPost = (name, method, jsonBody, pos) => ({
   },
   id: name, name, type: 'n8n-nodes-base.httpRequest', typeVersion: 4.2, position: pos,
 });
+// Airtable update via HTTP PATCH (schema-independent), authenticated by the Airtable PAT credential.
+const airtablePatch = (name, tableName, idExpr, fieldsBody, pos) => ({
+  parameters: {
+    method: 'PATCH', url: `=https://api.airtable.com/v0/{{ $env.AIRTABLE_BASE_ID }}/${tableName}/${idExpr}`,
+    authentication: 'predefinedCredentialType', nodeCredentialType: 'airtableTokenApi',
+    sendBody: true, specifyBody: 'json', jsonBody: fieldsBody, options: {},
+  },
+  id: name, name, type: 'n8n-nodes-base.httpRequest', typeVersion: 4.2, position: pos,
+  notes: 'Airtable update via HTTP PATCH; attach the Airtable PAT credential (Predefined Credential Type).',
+});
 
 // Match each Telegram result back to its group by chat id; emit one write-back per task.
 const NOTIFIED_UPDATES = `const built = $('Build Messages').all();
@@ -87,11 +97,8 @@ const nodes = [
 
   // success path: match by chat id, write back
   codeNode('Notified Updates', NOTIFIED_UPDATES, [700, 200]),
-  { parameters: {
-      resource: 'record', operation: 'update', base: BASE, table: table('Onboarding_Tasks'),
-      columns: { mappingMode: 'autoMapInputData' }, options: {} },
-    id: 'Mark Notified', name: 'Mark Notified', type: 'n8n-nodes-base.airtable', typeVersion: 2.1, position: [920, 200],
-    notes: 'Attach Airtable credential after import.' },
+  airtablePatch('Mark Notified', 'Onboarding_Tasks', '{{ $json.id }}',
+    '={{ JSON.stringify({ fields: { Notified_At: $json.Notified_At, Telegram_Message_ID: $json.Telegram_Message_ID, Telegram_Chat_ID: $json.Telegram_Chat_ID } }) }}', [920, 200]),
 
   // failure path: report undelivered groups to HR
   codeNode('Failed Sends', FAILED_SENDS, [700, 420]),

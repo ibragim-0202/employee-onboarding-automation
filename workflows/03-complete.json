@@ -218,32 +218,24 @@
     },
     {
       "parameters": {
-        "base": {
-          "__rl": true,
-          "mode": "id",
-          "value": "={{ $env.AIRTABLE_BASE_ID }}"
-        },
-        "resource": "record",
-        "operation": "update",
-        "table": {
-          "__rl": true,
-          "mode": "name",
-          "value": "Onboarding_Tasks"
-        },
-        "columns": {
-          "mappingMode": "autoMapInputData"
-        },
+        "method": "PATCH",
+        "url": "=https://api.airtable.com/v0/{{ $env.AIRTABLE_BASE_ID }}/Onboarding_Tasks/{{ $json.task_id }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "airtableTokenApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ fields: { Status: $json.status, Completed_At: $json.Completed_At, Completed_By: $json.Completed_By } }) }}",
         "options": {}
       },
       "id": "Update Task",
       "name": "Update Task",
-      "type": "n8n-nodes-base.airtable",
-      "typeVersion": 2.1,
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
       "position": [
         760,
         300
       ],
-      "notes": "Attach Airtable credential after import."
+      "notes": "Airtable update via HTTP PATCH; attach the Airtable PAT credential (Predefined Credential Type)."
     },
     {
       "parameters": {
@@ -319,32 +311,24 @@
     },
     {
       "parameters": {
-        "base": {
-          "__rl": true,
-          "mode": "id",
-          "value": "={{ $env.AIRTABLE_BASE_ID }}"
-        },
-        "resource": "record",
-        "operation": "update",
-        "table": {
-          "__rl": true,
-          "mode": "name",
-          "value": "Employees"
-        },
-        "columns": {
-          "mappingMode": "autoMapInputData"
-        },
+        "method": "PATCH",
+        "url": "=https://api.airtable.com/v0/{{ $env.AIRTABLE_BASE_ID }}/Employees/{{ $json.id }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "airtableTokenApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ fields: { Status: 'Complete' } }) }}",
         "options": {}
       },
       "id": "Mark Employee Complete",
       "name": "Mark Employee Complete",
-      "type": "n8n-nodes-base.airtable",
-      "typeVersion": 2.1,
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
       "position": [
         1640,
         200
       ],
-      "notes": "Attach Airtable credential after import."
+      "notes": "Airtable update via HTTP PATCH; attach the Airtable PAT credential (Predefined Credential Type)."
     },
     {
       "parameters": {
