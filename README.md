@@ -3,8 +3,6 @@
 Automates employee onboarding from offer acceptance to the end of week one: role-based task
 generation, assignment, reminders, escalation and a reporting dashboard.
 
-**▶ 2-minute demo:** _link added once the screen recording is published_
-
 ---
 
 ## The problem
@@ -81,6 +79,16 @@ flowchart TD
     J -- yes --> K["employee status = Complete"]
     E -. "18:00 · Due_Date < today" .-> L["escalate: bump count<br/>once/day · grouped summary to HR"]
 ```
+
+## Screenshots
+
+One grouped Telegram message per assignee with inline completion buttons, the generated task
+list, and the dashboard.
+
+| | |
+|---|---|
+| ![Grouped Telegram notification with Done / Not applicable buttons](docs/screenshots/telegram-message.png) | ![Generated, dated onboarding tasks](docs/screenshots/task-list.png) |
+| ![Dashboard — starting this week](docs/screenshots/dashboard-thisweek.png) | ![Dashboard — blocked / overdue](docs/screenshots/dashboard-blocked.png) |
 
 ## Stack
 
@@ -172,9 +180,9 @@ npm run build:nodes && npm run build:intake   # regenerate Code nodes / workflow
 
 ## Status and scope
 
-Built as a portfolio project by one person. It runs, it is deployed, and the demo video is
-unedited — but it **has not been used by a real HR team**, and it is described that way
-deliberately. No invented metrics or client names appear anywhere in this repo.
+Built as a portfolio project by one person. It runs and it is deployed — but it **has not been
+used by a real HR team**, and it is described that way deliberately. No invented metrics or client
+names appear anywhere in this repo.
 
 Not implemented, on purpose: ATS integration, offboarding, e-signature, SSO against a real identity
 provider, multi-language. The dashboard's "complete by day 7" metric is an approximation (there is
